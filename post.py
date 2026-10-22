@@ -180,4 +180,11 @@ def status():
 
 
 if __name__ == "__main__":
-    {"post": post, "check": check, "status": status}[sys.argv[1] if len(sys.argv) > 1 else "status"]()
+    try:
+        {"post": post, "check": check, "status": status}[sys.argv[1] if len(sys.argv) > 1 else "status"]()
+    except (SystemExit, Exception) as e:
+        msg = e.code if isinstance(e, SystemExit) else f"{type(e).__name__}: {e}"
+        if msg and os.environ.get("GITHUB_ACTIONS"):
+            # an annotation shows on the run's summary page (and in the public API), unlike the step log
+            print(f"::error title=post.py {sys.argv[1:]}::{msg}")
+        raise
