@@ -6,8 +6,8 @@ due). It runs on GitHub Actions, so your laptop can stay off. Every post is logg
 
 | File | What it is |
 |---|---|
-| `carousels/<nnn-word>/` | The slides as 4:5 JPEGs (`01.jpg` …) and `caption.txt`, made by `build.py` |
-| `schedule.csv` | One row per carousel: slot (IST), folder, number of slides, word |
+| `carousels/<nnn-word>/` | The slides as 4:5 JPEGs (`01.jpg` … `08.jpg`), made by `build.py` |
+| `schedule.csv` | One row per carousel: slot (IST), folder, number of slides, word, caption |
 | `posted.csv` | Written by the scheduler after each post (slot, folder, media id, time, link) |
 | `post.py` | Publishes through Instagram's official API (`post`, `check`, `status`) |
 | `.github/workflows/post.yml` | When it runs: 15 min before each slot, plus two catch-up runs |

@@ -1,8 +1,8 @@
 """Build the carousel queue that the GitHub scheduler posts from.
 
 For each carousel folder in F:\\AED\\carousels ("<n>. <Word>"), crops slides 01-08 to 4:5 the way the Instagram app
-does (centred), saves them as JPEGs (the API takes JPEG only), writes the caption and gives it the next posting slot
-(3 a day, IST).
+does (centred), saves them as JPEGs (the API takes JPEG only), and gives it the next posting slot (3 a day, IST) and
+its caption in schedule.csv. The workflow doesn't check out carousels/, so everything post.py reads is in the CSVs.
 
   python build.py --first 37 --last 127 --start "2026-11-02 09:17"
 
@@ -102,13 +102,12 @@ def main():
         dest.mkdir(parents=True)
         for i, png in enumerate(slides_of(folder), 1):
             to_jpeg(png, dest / f"{i:02d}.jpg")
-        (dest / "caption.txt").write_text(caption_of(word), encoding="utf-8")
         slot = "" if slug in posted else next(slots)
-        rows.append({"slot": slot, "slug": slug, "slides": SLIDES, "word": word})
+        rows.append({"slot": slot, "slug": slug, "slides": SLIDES, "word": word, "caption": caption_of(word)})
         print(f"{slot or 'posted':16}  {slug}  {caption_of(word)}")
 
     with open(HERE / "schedule.csv", "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["slot", "slug", "slides", "word"], lineterminator="\n")
+        w = csv.DictWriter(f, fieldnames=["slot", "slug", "slides", "word", "caption"], lineterminator="\n")
         w.writeheader()
         w.writerows(r for r in rows if r["slot"])
     size = sum(p.stat().st_size for p in OUT.rglob("*.jpg")) / 2**20

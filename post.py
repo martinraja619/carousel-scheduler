@@ -96,7 +96,7 @@ def image_urls(row):
 
 
 def caption(row):
-    return (HERE / "carousels" / row["slug"] / "caption.txt").read_text(encoding="utf-8").replace("\r\n", "\n").strip()
+    return row["caption"].strip()
 
 
 def build_container(ig_id, row):
