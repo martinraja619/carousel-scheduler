@@ -1,0 +1,55 @@
+name: Post carousel
+
+on:
+  schedule:
+    # GitHub runs cron in UTC (IST = UTC+5:30) and often starts runs late, so each slot gets a run 15 min early
+    # (post.py waits for the exact minute) and two catch-up runs in case the early one was delayed or dropped.
+    - cron: "32 3 * * *"   # 09:02 IST -> posts at 09:17
+    - cron: "17 4 * * *"   # 09:47 IST catch-up
+    - cron: "17 5 * * *"   # 10:47 IST catch-up
+    - cron: "49 8 * * *"   # 14:19 IST -> posts at 14:34
+    - cron: "34 9 * * *"   # 15:04 IST catch-up
+    - cron: "34 10 * * *"  # 16:04 IST catch-up
+    - cron: "51 13 * * *"  # 19:21 IST -> posts at 19:36
+    - cron: "36 14 * * *"  # 20:06 IST catch-up
+    - cron: "36 15 * * *"  # 21:06 IST catch-up
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "check = test without posting, status = show the queue, post = post the next due carousel"
+        type: choice
+        options: [check, status, post]
+        default: check
+
+permissions:
+  contents: write
+
+concurrency:
+  group: post-carousel
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # skip the carousels/ folder: Instagram fetches the images from GitHub, this job only needs the CSVs
+          sparse-checkout: .github
+
+      - name: Run post.py
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+        run: python3 post.py "${{ inputs.mode || 'post' }}"
+
+      - name: Save the posting log
+        if: always()
+        run: |
+          [ -n "$(git status --porcelain -- posted.csv)" ] || exit 0
+          git config user.name "carousel-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add posted.csv
+          git commit -m "Posted $(tail -n 1 posted.csv | cut -d, -f2)"
+          for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done
+          exit 1
