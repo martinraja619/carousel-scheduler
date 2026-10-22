@@ -32,6 +32,13 @@ def now():
     return datetime.now(IST)
 
 
+def note(msg):
+    """Print, and in GitHub Actions also show it in the run summary's Annotations box."""
+    print(msg)
+    if os.environ.get("GITHUB_ACTIONS"):
+        print(f"::notice title=post.py::{msg}")
+
+
 def slot_time(row):
     return datetime.strptime(row["slot"], "%Y-%m-%d %H:%M").replace(tzinfo=IST)
 
@@ -145,7 +152,7 @@ def post():
     permalink = call("GET", media_id, fields="permalink").get("permalink", "")
     log_posted(row, media_id, permalink)
     late = (now() - slot_time(row)).total_seconds() / 60
-    print(f"Posted {row['slug']} to @{username} ({late:.0f} min after its slot): {permalink}")
+    note(f"Posted {row['slug']} to @{username} ({late:.0f} min after its slot): {permalink}")
 
 
 def check():
@@ -162,9 +169,10 @@ def check():
                 raise SystemExit(f"{u}: HTTP {r.status}, {r.headers.get('Content-Type')}")
     print(f"All {row['slides']} images of {row['slug']} are reachable.")
     build_container(ig_id, row)  # never published; Instagram discards it after 24 hours
-    print(f"Instagram accepted {row['slug']} as a carousel (not published). Next slot: {row['slot']} IST.")
     limit = call("GET", f"{ig_id}/content_publishing_limit", fields="quota_usage,config").get("data", [{}])[0]
-    print(f"API posts in the last 24 h: {limit.get('quota_usage')} of {limit.get('config', {}).get('quota_total')}")
+    note(f"Check passed for @{username}: Instagram accepted {row['slug']} as a carousel (not published). "
+         f"Next slot: {row['slot']} IST. API posts in the last 24 h: {limit.get('quota_usage')} of "
+         f"{limit.get('config', {}).get('quota_total')}.")
 
 
 def status():
