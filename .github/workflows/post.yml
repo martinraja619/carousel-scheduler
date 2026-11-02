@@ -2,8 +2,8 @@ name: Post carousel
 
 on:
   schedule:
-    # GitHub runs cron in UTC (IST = UTC+5:30) and often starts runs late, so each slot gets a run 15 min early
-    # (post.py waits for the exact minute) and two catch-up runs in case the early one was delayed or dropped.
+    # Backup only: GitHub has been starting these 4-7 hours late (Oct-Nov 2026). The exact times come from
+    # cron-job.org calling workflow_dispatch (README, "Exact-time triggers"). Cron is UTC (IST = UTC+5:30).
     - cron: "32 3 * * *"   # 09:02 IST -> posts at 09:17
     - cron: "17 4 * * *"   # 09:47 IST catch-up
     - cron: "17 5 * * *"   # 10:47 IST catch-up
@@ -13,6 +13,10 @@ on:
     - cron: "51 13 * * *"  # 19:21 IST -> posts at 19:36
     - cron: "36 14 * * *"  # 20:06 IST catch-up
     - cron: "36 15 * * *"  # 21:06 IST catch-up
+  push:
+    # a schedule change starts a run right away, so a carousel moved to within 40 min from now posts on time
+    branches: [main]
+    paths: [schedule.csv]
   workflow_dispatch:
     inputs:
       mode:
