@@ -41,6 +41,9 @@ jobs:
         with:
           # skip the carousels/ folder: Instagram fetches the images from GitHub, this job only needs the CSVs
           sparse-checkout: .github
+          # the latest main, not the commit the run was started on: a run that queued behind a post must see that
+          # post in posted.csv (on 2 Nov a 14:29 run read the 14:29 posted.csv, then clashed with Novice's log line)
+          ref: main
           # the branch as it is now, not the commit that triggered the run: a run that queued behind a posting run
           # must see the posted.csv that run saved, or it records the post again and can't push (2 Nov 2026)
           ref: ${{ github.ref_name }}
