@@ -4,7 +4,7 @@ For each carousel folder in F:\\AED\\carousels ("<n>. <Word>"), crops slides 01-
 does (centred), saves them as JPEGs (the API takes JPEG only), and gives it the next posting slot (3 a day, IST) and
 its caption in schedule.csv. The workflow doesn't check out carousels/, so everything post.py reads is in the CSVs.
 
-  python build.py --first 37 --last 127 --start "2026-11-02 09:17"
+  python build.py --first 37 --last 127 --start "2026-11-02 14:34"
 
 Re-running rebuilds everything from the source folders. Carousels already in posted.csv get no new slot.
 """

@@ -1,8 +1,8 @@
 # Carousel scheduler for @martinraja_etymology
 
 Posts one carousel to Instagram at **9:17 am, 2:34 pm and 7:36 pm IST**, in order, from `schedule.csv`: 37 Noob on
-2 Nov 2026 9:17 am through 127 Savour on 2 Dec 2026 9:17 am. Nothing posts before 2 Nov (runs before then find nothing
-due). It runs on GitHub Actions, so your laptop can stay off. Every post is logged in `posted.csv` with its link.
+2 Nov 2026 2:34 pm through 127 Savour on 2 Dec 2026 2:34 pm (the 2 Nov 9:17 am slot was skipped). Nothing posts before
+then (runs before then find nothing due). It runs on GitHub Actions, so your laptop can stay off. Every post is logged in `posted.csv` with its link.
 
 | File | What it is |
 |---|---|
@@ -49,7 +49,7 @@ That's it. From the next slot on it posts by itself.
 
 ## Changing the queue (needs Claude or a terminal)
 ```
-python build.py --first 37 --last 127 --start "2026-11-02 09:17"
+python build.py --first 37 --last 127 --start "2026-11-02 14:34"
 ```
 rebuilds the JPEGs and `schedule.csv` from `F:\AED\carousels` (carousels already in `posted.csv` keep their place).
 Then commit and push. To change the posting times, edit `SLOTS` in `build.py` **and** the cron lines in
