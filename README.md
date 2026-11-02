@@ -57,16 +57,16 @@ cron-job.org: 5 minutes before each slot it asks GitHub to start the workflow, w
    - URL: `https://api.github.com/repos/martinraja619/carousel-scheduler/actions/workflows/post.yml/dispatches`
    - Execution schedule: **every day at 9:12**, time zone **Asia/Kolkata** (if the job has no time-zone box, set it
      under the account's **Settings**)
-   - **Advanced** tab → Request method **POST**, these four headers, and this request body:
+   - **Advanced** tab → Request method **POST**, these two headers, and this request body (type it with straight
+     quotes):
 
      | Header | Value |
      |---|---|
      | `Accept` | `application/vnd.github+json` |
      | `Authorization` | `Bearer ` followed by the token (one space after Bearer) |
-     | `X-GitHub-Api-Version` | `2022-11-28` |
-     | `Content-Type` | `application/json` |
 
-     Body: `{"ref":"main","inputs":{"mode":"post"}}`
+     Body: `{"ref":"main","inputs":{"mode":"post"}}`. cron-job.org then offers to add a JSON `Content-Type` header:
+     accept it. (Typing `X-GitHub-Api-Version` or a second `Content-Type` by hand got a 400 on 2 Nov 2026.)
    - Notifications: tick **execution fails**. Then **Create**.
 3. Clone it twice and change only the title and time: `Carousel 2:34` at **14:29**, `Carousel 7:36` at **19:31**.
 
