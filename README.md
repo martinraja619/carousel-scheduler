@@ -10,7 +10,7 @@ Posts one carousel to Instagram at **9:17 am, 2:34 pm and 7:36 pm IST**, in orde
 | `schedule.csv` | One row per carousel: slot (IST), folder, number of slides, word, caption |
 | `posted.csv` | Written by the scheduler after each post (slot, folder, media id, time, link) |
 | `post.py` | Publishes through Instagram's official API (`post`, `check`, `status`) |
-| `.github/workflows/post.yml` | The job. Started 5 min before each slot by cron-job.org (step 4), by any push that changes `schedule.csv`, and by GitHub's own schedule as a late backup |
+| `.github/workflows/post.yml` | The job. Started 5–24 min before each slot by cron-job.org (step 4), by any push that changes `schedule.csv`, and by GitHub's own schedule as a late backup |
 
 ## One-time setup (about 30 minutes)
 
@@ -39,8 +39,8 @@ the run, copy the error and show it to Claude.
 
 ### 4. Exact-time triggers (cron-job.org, free)
 GitHub starts its own scheduled runs 4–7 hours late (seen 23 Oct–2 Nov 2026), so the exact times come from
-cron-job.org: 5 minutes before each slot it asks GitHub to start the workflow, which happens within a minute, and
-`post.py` waits for the exact minute. It never posts early, so an extra or early trigger is harmless.
+cron-job.org: at 9:12, 14:12 and 19:12 it asks GitHub to start the workflow, which happens within a minute, and
+`post.py` waits for the exact minute of the slot (up to 40 minutes). It never posts early, so an extra or early trigger is harmless.
 
 **a. A GitHub token that can only start this workflow** (you make it; don't paste it into chat)
 1. Open <https://github.com/settings/personal-access-tokens/new> (Fine-grained token).
@@ -50,13 +50,14 @@ cron-job.org: 5 minutes before each slot it asks GitHub to start the workflow, w
    by itself).
 5. **Generate token** and copy it (it starts with `github_pat_`).
 
-**b. Three jobs on cron-job.org**
+**b. One job on cron-job.org**
 1. Sign up at <https://console.cron-job.org/signup> and log in.
 2. **Create cronjob**:
-   - Title: `Carousel 9:17`
+   - Title: `Carousel trigger`
    - URL: `https://api.github.com/repos/martinraja619/carousel-scheduler/actions/workflows/post.yml/dispatches`
-   - Execution schedule: **every day at 9:12**, time zone **Asia/Kolkata** (if the job has no time-zone box, set it
-     under the account's **Settings**)
+   - Execution schedule: **Custom**: every day of the month, every weekday, every month, hours **9, 14 and 19**,
+     minute **12**. Time zone **Asia/Kolkata** (if the job has no time-zone box, set it under the account's
+     **Settings**). That's 9:12, 14:12 and 19:12; each run waits for its slot (9:17, 14:34, 19:36).
    - **Advanced** tab → Request method **POST**, these two headers, and this request body (type it with straight
      quotes):
 
@@ -68,7 +69,7 @@ cron-job.org: 5 minutes before each slot it asks GitHub to start the workflow, w
      Body: `{"ref":"main","inputs":{"mode":"post"}}`. cron-job.org then offers to add a JSON `Content-Type` header:
      accept it. (Typing `X-GitHub-Api-Version` or a second `Content-Type` by hand got a 400 on 2 Nov 2026.)
    - Notifications: tick **execution fails**. Then **Create**.
-3. Clone it twice and change only the title and time: `Carousel 2:34` at **14:29**, `Carousel 7:36` at **19:31**.
+(Cloning a second job gave "possibly malformed job" on 2 Nov 2026, so it's one job with three times.)
 
 **c. Test:** open one job and click **Test run**. A response of **204** (or 200) means it works, and a new run
 appears under **Actions** with event `workflow_dispatch`. It posts nothing unless a slot is under 40 min away, and
@@ -92,8 +93,8 @@ That's it. From the next slot on it posts by itself.
 python build.py --first 37 --last 127 --start "2026-11-02 14:34"
 ```
 rebuilds the JPEGs and `schedule.csv` from `F:\AED\carousels` (carousels already in `posted.csv` keep their place).
-Then commit and push. To change the posting times, edit `SLOTS` in `build.py`, the three cron-job.org jobs
-(5 minutes before each slot) **and** the backup cron lines in `post.yml` (cron is UTC: IST minus 5:30).
+Then commit and push. To change the posting times, edit `SLOTS` in `build.py`, the cron-job.org job's
+hours and minute (each run must start under 40 minutes before its slot) **and** the backup cron lines in `post.yml` (cron is UTC: IST minus 5:30).
 
 ## Notes
 - The repository is public, because Instagram fetches the images from a public link. Anyone who finds it can see
